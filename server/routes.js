@@ -56,6 +56,10 @@ const splitPath = filePath => {
     let contentType = 'text/html';
   
     switch (fileExtension.toLowerCase().replace('.', '')) {
+      case 'js':
+      contentType = 'text/javascript';
+      break;
+
       case 'json':
         contentType = 'application/json';
         break;
@@ -78,16 +82,29 @@ const splitPath = filePath => {
 const handleRequest = async (request, response) => {
     const {url, method, headers} = request;
     const filePath = new URL(url,`http://${headers.host}`).pathname;
+    console.log(filePath);
+    if(method.toUpperCase() === 'GET' && filePath === '/public/front.js')
+    {
+        const fileName = "../public/front.js";
 
+        return renderPublic(fileName, response);
+    }   
     if(method.toUpperCase() === 'GET' && !filePath.startsWith('/api'))
     {
         const fileName = "../html/index.html";
+
         return renderPublic(fileName, response);
     }
-    if(method.toUpperCase() === 'GET' && filePath === '/api/queue' && acceptsJson(request))
+
+    else if(method.toUpperCase() === 'GET' && filePath === '/api/queue' )
     {   
         response.writeHead(200, {'Content-Type' : 'application/json'});
-        response.end(JSON.stringify(number));
+        response.end(JSON.stringify(queueNumber));
+    }
+    else {
+        console.log('eipä ollut');
+        response.writeHead(404);
+        response.end();
     }
 }
 
